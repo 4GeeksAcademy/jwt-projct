@@ -11,13 +11,14 @@ export const signup = async (dispatch, payload) => {
         // Optional: you can add firstname/lastname if your backend supports it
       })
     });
-
+    let data = await response.json();
+    
     dispatch ({
       type: "set_user",
       payload: {user: data.user_id}
     })
 
-    let data = await response.json();
+    
 
     if (response.ok) {
       console.log("Signup successful:", data);
