@@ -32,6 +32,7 @@ export const router = createBrowserRouter(
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/demo" element={<Demo />} />
+        <Route path="/single/:id" element={ <Single />} />
       </Route>
     )
 );

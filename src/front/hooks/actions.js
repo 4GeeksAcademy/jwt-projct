@@ -3,22 +3,23 @@ export const signup = async (dispatch, payload) => {
     let response = await fetch(import.meta.env.VITE_BACKEND_URL + "/signup", {
       method: "POST",
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
         email: payload.email,
-        password: payload.password
+        password: payload.password,
         // Optional: you can add firstname/lastname if your backend supports it
-      })
+      }),
     });
-    let data = await response.json();
-    
-    dispatch ({
-      type: "set_user",
-      payload: {user: data.user_id}
-    })
 
-    
+    let data = await response.json();
+
+    if (response.ok) {
+      dispatch({
+        type: "set_user",
+        payload: { user: data.user_id },
+      });
+    }
 
     if (response.ok) {
       console.log("Signup successful:", data);
@@ -30,27 +31,27 @@ export const signup = async (dispatch, payload) => {
     throw error; // forward to caller (Signup.jsx)
   }
 };
-        
 
 export const login = async (dispatch, payload) => {
   try {
     let response = await fetch(import.meta.env.VITE_BACKEND_URL + "/login", {
       method: "POST",
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
         email: payload.email,
-        password: payload.password
-      })
+        password: payload.password,
+      }),
     });
 
     let data = await response.json();
+
     if (response.ok) {
       localStorage.setItem("token", data.access_token);
       dispatch({
         type: "set_user",
-        payload: { userId: data.user_id }
+        payload: { userId: data.user_id },
       });
     } else {
       console.error("Login error:", data);
@@ -60,19 +61,32 @@ export const login = async (dispatch, payload) => {
   }
 };
 
-// export const private = async (dispatch, payload) => {
-//     let response = await fetch("https://playground.4geeks.com/contact/agendas/moyunlimited") 
-//         let data = await response.json();
+export const getUser = async (dispatch, token) => {
+  try {
+    let response = await fetch(import.meta.env.VITE_BACKEND_URL + "/private", {
+      method: "GET",
+      headers: {
+        "Authorization": "Bearer " + token
+      }
+    });
 
-//         if(data.detail) {
-//             createAgenda();
-//         }
-//         else {
-//             dispatch({
-//             type: "set_agenda",
-//             payload: {agenda: data.slug, contacts: data.contacts},
-//         });
-//         }
-        
+    let data = await response.json();
 
-// }
+    if (response.ok) {
+      console.log("User authenticated:", data);
+
+      // Optional: you might want to parse user ID from the message
+      dispatch({
+        type: "set_user",
+        payload: { userId: "Authenticated" } // Or extract from `data.msg`
+      });
+
+    } else {
+      console.error("Token error:", data);
+    }
+
+  } catch (error) {
+    console.error("Token validation failed:", error);
+  }
+};
+

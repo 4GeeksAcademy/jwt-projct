@@ -28,7 +28,7 @@ def handle_hello():
 @api.route('/signup', methods=['POST'])
 def handle_signup():
     body = request.json
-    body_email = body('email')
+    body_email = body['email']
     body_password = hashlib.sha256(body['password'].encode("utf-8")).hexdigest()
     user = User(email=body_email, password=body_password)
     
@@ -48,15 +48,21 @@ def handle_login():
 
     if user and user.password == body_password:
         access_token = create_access_token(identity=user.id)
-        return jsonify(access_token = access_token), 200
+        return jsonify(access_token = access_token, user=user.serialize()), 200
     else:
         return jsonify("User not found"), 400
 
 
-@api.route('/private', methods=['POST', 'GET'])
+
+@api.route('/private', methods=[ 'GET'])
 @jwt_required()
 def handle_private():
-    current_user_id = get_jwt_identity()
-    return jsonify({ "msg": f"You are logged in as user {current_user_id}" }), 200
+    user_email = get_jwt_identity()
+    user = User.query.filter_by(email=user_email).first()
+    
+    if user and user.is_active:
+        return jsonify(user=user.serialize()), 200
+    else:
+        return jsonify({"error": "Unauthorized or inactive user"}), 403
 
 

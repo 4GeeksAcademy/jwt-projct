@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import useGlobalReducer from '../hooks/useGlobalReducer.jsx';
 import { useNavigate } from 'react-router-dom';
 import { signup } from '../hooks/actions.js';
-
 export const Signup = () => {
   const { store, dispatch } = useGlobalReducer();
   const [user, setUser] = useState({ email: "", password: "" });
